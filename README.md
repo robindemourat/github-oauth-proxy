@@ -1,3 +1,8 @@
+Modifications done in this fork :
+
+* add cors to toekn procedure
+* use express
+
 # GitHub OAuth Proxy
 
 proxy github oauth token requests to preserve client_secret for client-side apps, such as browser extensions and static pages.

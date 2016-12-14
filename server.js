@@ -1,5 +1,10 @@
 var http = require('http');
 var https = require('https');
+
+var cors = require('cors');
+var express = require('express')
+var app = express();
+
 var config = require('./config.json');
 
 function getToken(code, res) {
@@ -8,6 +13,8 @@ function getToken(code, res) {
     res.end();
     return;
   }
+
+  console.log('getting token');
 
   var ghreq = https.request({
     hostname:'github.com',
@@ -44,21 +51,27 @@ function getToken(code, res) {
     client_secret: config.client_secret,
     code:code
   };
-
   ghreq.write(JSON.stringify(data));
   ghreq.end();
 }
 
-var server = http.createServer(function (req, res) {
+app.use(cors());
+
+app.post('/', function (req, res) {
+  console.log('got request');
   res.setHeader('Allow', 'POST');
   res.setHeader('Accept', 'application/json');
   var data = '';
+
+  console.log('got request with method ', req.method);
 
   if (req.method !== 'POST') {
     res.writeHead(405);
     res.end();
     return;
   }
+
+  console.log('request is a post as expected');
 
   var lcHeaders = {};
   for (k in req.headers)
@@ -69,8 +82,6 @@ var server = http.createServer(function (req, res) {
     res.end();
     return;
   }
-
-  //TODO: check req accept header
 
   req.on('data', function(chunk) {
     data += chunk;
@@ -86,9 +97,6 @@ var server = http.createServer(function (req, res) {
   });
 });
 
-exports.start = function(port) {
-  server.listen(port);
-  console.log('running on port ' + port);
-}
-
-exports.start(80);
+app.listen(3001, function(){
+  console.log('app listening on 3001');
+});
